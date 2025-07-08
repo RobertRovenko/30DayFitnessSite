@@ -11,10 +11,7 @@ function PrivacyPolicy() {
         transition={{ duration: 0.6 }}
         className="w-full bg-[#101125] px-12 py-6 flex items-center justify-between border-b border-gray-700"
       >
-        <h1
-          className="text-4xl font-extrabold text-white tracking-wide"
-          style={{ fontFamily: "'Bebas Neue', cursive" }}
-        >
+        <h1 className="text-4xl font-extrabold text-white tracking-wide font-bebas">
           30 Day Fitness
         </h1>
 
@@ -49,12 +46,10 @@ function PrivacyPolicy() {
           className="space-y-6 text-gray-300"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          <h1
-            className="text-5xl font-extrabold text-white tracking-wide mb-6"
-            style={{ fontFamily: "'Bebas Neue', cursive" }}
-          >
+          <h1 className="text-5xl font-extrabold text-white tracking-wide mb-6 font-bebas">
             Privacy Policy
           </h1>
+
           <p>
             30 Day Fitness does not collect any data from our users. All data is
             saved locally on the app and is not shared with any third parties.

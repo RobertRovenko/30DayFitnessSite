@@ -15,10 +15,7 @@ function DayFitness() {
         transition={{ duration: 0.6 }}
         className="w-full bg-[#101125] px-12 py-6 flex items-center justify-between border-b border-gray-700"
       >
-        <h1
-          className="text-4xl font-extrabold text-white tracking-wide"
-          style={{ fontFamily: "'Bebas Neue', cursive" }}
-        >
+        <h1 className="text-4xl font-extrabold text-white tracking-wide font-bebas">
           30 Day Fitness
         </h1>
 
@@ -42,15 +39,10 @@ function DayFitness() {
           className="flex flex-col md:flex-row items-center md:items-start md:space-x-12 mt-16 space-y-8 md:space-y-0 text-center md:text-right "
         >
           <div>
-            <h1
-              className="text-6xl md:text-8xl font-bold uppercase"
-              style={{
-                fontFamily: "'Bebas Neue', cursive",
-                letterSpacing: "0.05em",
-              }}
-            >
+            <h1 className="text-6xl md:text-8xl font-bold uppercase font-bebas tracking-wider">
               30 DAY <br /> FITNESS
             </h1>
+
             <p
               className="text-xs mt-1 tracking-widest font-bold"
               style={{ fontFamily: "'Inter', sans-serif" }}
