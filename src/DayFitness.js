@@ -7,7 +7,7 @@ import PrivacyPolicy from "./PrivacyPolicy"; // import the new page component
 
 function DayFitness() {
   return (
-    <div className="min-h-screen bg-bgdarkblue text-white flex flex-col items-center justify-center ">
+    <div className="min-h-screen bg-bgdarkblue text-white flex flex-col items-center justify-center">
       {/* Header */}
       <motion.header
         initial={{ y: -40, opacity: 0 }}
