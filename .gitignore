@@ -11,6 +11,10 @@
 # production
 /build
 
+# ProRes 4444 mockup masters (~885MB). These are the inputs the site encodes
+# from; the deployable alpha versions live in public/assets/videos/optimized.
+/mockupvideos
+
 # misc
 .DS_Store
 .env.local
