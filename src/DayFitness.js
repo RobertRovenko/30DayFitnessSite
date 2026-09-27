@@ -246,7 +246,7 @@ function DayFitness() {
                   Gym-focused 30-day plans
                 </span>
 
-                <h1 className="mt-4 font-bebas text-6xl leading-[0.9] tracking-wider sm:text-7xl md:text-8xl">
+                <h1 className="text-bebas-heavy mt-4 font-bebas text-7xl leading-[0.9] tracking-wider sm:text-8xl md:text-9xl">
                   <span className="block text-ink-primary">30 DAY</span>
                   <span className="block text-accent">FITNESS</span>
                 </h1>

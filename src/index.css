@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Heavier Bebas for the hero headline.
+   Bebas Neue is served at a single weight - Google Fonts only publishes 400 for
+   it - so there is no bold face to switch to. Setting font-weight here would
+   only get the browser's synthetic emboldening, which smears the outline and
+   closes up the counters, and at text-8xl that reads as blurry rather than
+   heavy.
+
+   This thickens the glyphs instead. The stroke is centred on the outline and
+   painted in the fill's own colour, so only the outer half shows: each letter
+   gains roughly a pixel of weight and no outline is ever visible. currentColor
+   means the gold "FITNESS" and the white "30 DAY" each thicken in their own
+   colour, because text properties inherit. In em so it scales with the
+   heading rather than being a fixed number of pixels at one breakpoint. */
+.text-bebas-heavy {
+  -webkit-text-stroke: 0.03em currentColor;
+}
