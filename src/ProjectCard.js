@@ -1,16 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+
+import MuscleExplorer from "./MuscleExplorer";
 
 const ProjectCard = () => {
   const project = {
     title: "30 Day Fitness",
-    imageUrls: [
-      "/images/30dayfitnessdemonstration4.png",
-      "/images/30dayfitnessdemonstration3.png",
-      "/images/30dayfitnessdemonstration2.png",
-      "/images/30dayfitnessdemonstration1.png",
-    ],
     backgroundColor: "",
     foregroundColor: "#EAEAEA", // TEXT_PRIMARY
     codeLink: "",
@@ -18,20 +14,6 @@ const ProjectCard = () => {
       "https://play.google.com/store/apps/details?id=com.rovenkodev.FitnessGuru",
     codeText: "Code Private",
     siteText: "Get 30 Day Fitness Pro",
-  };
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === project.imageUrls.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? project.imageUrls.length - 1 : prev - 1
-    );
   };
 
   const adText = `30 Day Fitness is your ultimate gym companion! Take the first step towards transforming your body with our workout plan, expert tips, and a collection of detailed demonstration images that guide you on the right technique in the gym. Start on the free core program, then unlock every program, every difficulty and every custom plan with 30 Day Fitness Pro. Discover a variety of exercises and easily navigate through our user-friendly app. In just 30 days, you’ll feel more motivated, stronger, and experience a positive boost in your fitness journey!`;
@@ -70,86 +52,66 @@ const ProjectCard = () => {
             backgroundColor: project.backgroundColor,
             color: project.foregroundColor,
           }}
-          className="mx-auto flex w-full max-w-6xl flex-col gap-10 rounded-3xl border border-white/10 bg-app-surface p-6 sm:p-8 md:flex-row md:items-start md:gap-14"
+          className="mx-auto w-full max-w-6xl rounded-3xl border border-white/10 bg-app-surface p-6 sm:p-8"
         >
-          {/* Image Right */}
-          <div
-            className="relative flex w-full justify-center md:w-1/2"
-            style={{ minHeight: "200px" }}
-          >
-            <div className="rounded-[28px] border border-accent/25 bg-app-raised p-3">
-              <img
-                src={project.imageUrls[currentImageIndex]}
-                alt={`${project.title} screenshot`}
-                className="max-h-[560px] w-auto rounded-2xl object-contain"
-              />
+          {/* The phone carousel used to occupy the first column of this grid.
+              With it gone the copy has the whole card to itself, so the block
+              is rebalanced into two columns rather than left as a single
+              measure stretched across 1100px. */}
+          <div className="grid gap-10 md:grid-cols-2 md:items-start md:gap-14">
+            <div className="space-y-6">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-app-bg">
+                  <Sparkles size={11} /> Free core program
+                </span>
+                <h3 className="mt-4 font-bebas text-4xl tracking-wider text-ink-primary sm:text-5xl">
+                  {project.title}
+                </h3>
+              </div>
+  
+              <p className="text-base leading-relaxed text-ink-secondary">
+                {adText}
+              </p>
+  
+              <div className="flex flex-wrap items-center gap-3">
+                {project.siteLink && (
+                  <a
+                    href={project.siteLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-black uppercase tracking-wider text-app-bg shadow-gold transition hover:brightness-110"
+                  >
+                    {project.siteText}
+                  </a>
+                )}
+              </div>
             </div>
 
-            {project.imageUrls.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-app-bg/80 p-2.5 text-ink-primary backdrop-blur-md transition hover:bg-accent hover:text-app-bg"
-                  aria-label="Previous Image"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-
-                <button
-                  onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-app-bg/80 p-2.5 text-ink-primary backdrop-blur-md transition hover:bg-accent hover:text-app-bg"
-                  aria-label="Next Image"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Content Left */}
-          <div className="w-full space-y-6 md:w-1/2">
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-app-bg">
-                <Sparkles size={11} /> Free core program
+            {/* The free/Pro split and the safety note, in the second column. */}
+            <div className="space-y-6">
+              <span className="block text-[11px] font-black uppercase tracking-[0.25em] text-accent">
+                Info
               </span>
-              <h3 className="mt-4 font-bebas text-4xl tracking-wider text-ink-primary sm:text-5xl">
-                {project.title}
-              </h3>
-            </div>
 
-            <p className="text-base leading-relaxed text-ink-secondary">
-              {adText}
-            </p>
-
-            <ul className="space-y-3">
-              {features.map((feat, idx) => (
-                <li
-                  key={idx}
-                  className="flex gap-3 text-sm leading-relaxed text-ink-secondary"
-                >
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-                  <span>{feat}</span>
-                </li>
-              ))}
-            </ul>
-
-            <p className="rounded-2xl border border-white/10 bg-app-raised p-4 text-xs leading-relaxed text-ink-tertiary">
-              {disclaimer}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              {project.siteLink && (
-                <a
-                  href={project.siteLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-black uppercase tracking-wider text-app-bg shadow-gold transition hover:brightness-110"
-                >
-                  {project.siteText}
-                </a>
-              )}
+              <ul className="space-y-3">
+                {features.map((feat, idx) => (
+                  <li
+                    key={idx}
+                    className="flex gap-3 text-sm leading-relaxed text-ink-secondary"
+                  >
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+  
+              <p className="rounded-2xl border border-white/10 bg-app-raised p-4 text-xs leading-relaxed text-ink-tertiary">
+                {disclaimer}
+              </p>
             </div>
           </div>
+
+          <MuscleExplorer className="mt-12 border-t border-white/10 pt-12" />
         </div>
       </motion.div>
     </motion.div>

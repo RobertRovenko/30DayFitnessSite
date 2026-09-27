@@ -1,15 +1,24 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, Crown, ShieldCheck } from "lucide-react";
 
-import Carousel from "./Carousel";
 import HeroShowcase from "./HeroShowcase";
 import ProjectCard from "./ProjectCard";
 import { Reveal, RevealGroup, RevealItem } from "./Reveal";
+import ScrollProgress from "./ScrollProgress";
+import { SCREENS, PhoneMockup } from "./screens";
 
 const PLAY_URL =
   "https://play.google.com/store/apps/details?id=com.rovenkodev.FitnessGuru";
-const DEV_URL = "https://www.robertrovenko.com/";
+// The "rovenkodev" link in the navbar and footer points at the Play developer
+// profile, which lists every app we ship from one place.
+const DEV_PLAY_URL = "https://play.google.com/store/apps/dev?id=6638725637924776409";
 
 // Mirrors the in-app paywall (components/PaywallOverlay.js -> PLACEHOLDER).
 // purchasesStore.js still points at RevenueCat Test Store product ids, so these
@@ -57,6 +66,17 @@ const PRO_INCLUDES = [
   "Cancel or change your plan any time in Google Play",
 ];
 
+// Quality claims for the "built by athletes and professionals" section. Kept
+// deliberately general - they restate the same promises the in-app content makes
+// (demonstrations, technique notes, real sets/reps/rest) rather than asserting
+// credentials we cannot point at.
+const CRAFTED_POINTS = [
+  "Every exercise is demonstrated and reviewed before it reaches the app",
+  "Sets, reps and rest follow real hypertrophy programming",
+  "Technique notes focus on the mistakes that actually cost you reps",
+  "Each program and difficulty level is tested through before it ships",
+];
+
 // A tick for the boolean rows, the raw value otherwise - the same check/label
 // treatment the in-app paywall uses for its plan rows.
 const ComparisonValue = ({ value, pro }) => {
@@ -93,17 +113,38 @@ const SectionHeading = ({ eyebrow, title, copy }) => (
 );
 
 function DayFitness() {
+  // Scroll-linked hero exit. This is the one part of the page that responds to
+  // where the reader actually is; everything below it is a one-shot reveal, so
+  // without this the gap between the video loop and the first section is dead
+  // air.
+  //
+  // The copy is driven from its PARENT wrapper, not from the motion.div that
+  // carries the load-in. That node already owns `y`, and two transforms on one
+  // element fight each other. Nesting them composes cleanly, and it leaves the
+  // load-in - and therefore the LCP path HeroShowcase works hard to protect -
+  // exactly as it was.
+  const heroRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroCopyY = useTransform(heroProgress, [0, 1], [0, 110]);
+  const heroCopyFade = useTransform(heroProgress, [0, 0.75], [1, 0]);
+  // Scales up rather than down, so the section's own overflow-hidden crops the
+  // media instead of opening a gap at the edges.
+  const heroMediaScale = useTransform(heroProgress, [0, 1], [1, 1.06]);
+  const heroMediaFade = useTransform(heroProgress, [0, 0.9], [1, 0.6]);
+
   return (
     <div className="flex min-h-screen flex-col bg-app-bg font-inter text-ink-primary">
       {/* Header */}
-      <motion.header
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="sticky top-0 z-30 flex w-full items-center justify-between border-b border-white/10 bg-app-bg px-5 py-4 sm:px-8"
-      >
+      {/* Header. A plain element, not a motion one: App fades the page in on
+          navigation, and a header that also slid in on mount made the two
+          animations read as a stutter. */}
+      <header className="sticky top-0 z-30 flex w-full items-center justify-between border-b border-white/10 bg-app-bg px-5 py-5 sm:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <span className="font-oswald text-xl font-semibold tracking-wide sm:text-2xl">
+          <span className="font-oswald text-2xl font-semibold tracking-wide sm:text-3xl">
             30 DAY FITNESS
           </span>
         </Link>
@@ -111,13 +152,21 @@ function DayFitness() {
         <div className="flex items-center gap-4 sm:gap-6">
           <a
             href="#pro"
-            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-app-bg transition hover:brightness-110"
+            // Outlined rather than a solid gold fill on purpose: bg-accent is
+            // the site's reserved primary-CTA treatment, and spending it on the
+            // chrome made a 12px pill compete with the real "Get it on Google
+            // Play" buttons further down the page. This reads as a badge that
+            // still says premium, and the glow is what carries it at this size.
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-accent/40 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-accent shadow-gold transition hover:border-accent hover:bg-accent/10 hover:shadow-gold-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:px-4 sm:py-2"
           >
-            <Crown size={11} />
+            <Crown
+              size={14}
+              className="shrink-0 transition-transform duration-300 group-hover:scale-110"
+            />
             <span className="hidden sm:inline">30 Day Fitness </span>Pro
           </a>
           <a
-            href={DEV_URL}
+            href={DEV_PLAY_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] font-semibold uppercase tracking-[0.25em] text-ink-tertiary transition hover:text-ink-primary"
@@ -125,13 +174,18 @@ function DayFitness() {
             <span className="text-accent">rovenko</span>dev
           </a>
         </div>
-      </motion.header>
+
+        <ScrollProgress />
+      </header>
 
       <main className="flex-grow">
         {/* Hero. The five alpha clips are the full-bleed background of the whole
             section rather than a panel beside the copy, so the headline sits
             over them behind a scrim that keeps its contrast. */}
-        <section className="relative isolate overflow-hidden">
+        <section
+          ref={heroRef}
+          className="relative isolate overflow-hidden"
+        >
           {/* -z-20 keeps the clips at the floor of the section's stacking context,
               the scrim above them at -z-10, and the copy above that. On wide
               screens the device is also slid right so it sits beside the copy
@@ -139,7 +193,19 @@ function DayFitness() {
               margins transparent, so the shift opens no visible gap. That starts
               at lg, not md: between 768 and 1024 the copy still spans most of the
               column and would collide with the device. */}
-          <HeroShowcase className="-z-20 lg:translate-x-[22%]" />
+          {/* Wrapper only, so the scroll transform lands on a node without an
+              overflow-hidden of its own - HeroShowcase's root clips, and a
+              scale on that element would be cropped by its own container. */}
+          <motion.div
+            className="absolute inset-0 -z-20"
+            style={
+              reduceMotion
+                ? undefined
+                : { scale: heroMediaScale, opacity: heroMediaFade }
+            }
+          >
+            <HeroShowcase className="lg:translate-x-[22%]" />
+          </motion.div>
 
           {/* Scrim over the clips, between them and the copy. Three tiers, because
               how bright the device reads depends on how much of the frame the
@@ -163,7 +229,12 @@ function DayFitness() {
             className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden h-40 bg-gradient-to-t from-app-bg to-transparent lg:block"
           />
 
-          <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-20 sm:px-8 md:pb-32 md:pt-32">
+          <motion.div
+            style={
+              reduceMotion ? undefined : { y: heroCopyY, opacity: heroCopyFade }
+            }
+            className="relative mx-auto max-w-6xl px-5 pb-20 pt-20 sm:px-8 md:pb-32 md:pt-32"
+          >
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
@@ -207,7 +278,6 @@ function DayFitness() {
 
                 <dl className="mt-10 flex items-center justify-center gap-8 md:justify-start">
                   {[
-                    ["11", "programs"],
                     ["30", "days"],
                     ["0", "accounts"],
                   ].map(([stat, label]) => (
@@ -223,7 +293,7 @@ function DayFitness() {
                 </dl>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         </section>
 
         {/* 30 Day Fitness Pro - mirrors the in-app paywall (PaywallOverlay.js):
@@ -256,9 +326,9 @@ function DayFitness() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${plan.name} plan, ${plan.price} ${plan.unit} ${plan.caption}`}
-                    className={`flex min-h-[140px] flex-col justify-center rounded-2xl border px-6 py-7 transition hover:brightness-110 ${
+                    className={`flex min-h-[140px] flex-col justify-center rounded-2xl border px-6 py-7 transition motion-safe:hover:-translate-y-1 hover:brightness-110 ${
                       plan.primary
-                        ? "border-accent bg-app-raised shadow-gold"
+                        ? "border-accent bg-app-raised shadow-gold motion-safe:hover:shadow-gold-lg"
                         : "border-white/10 bg-app-bg hover:border-accent/40"
                     }`}
                   >
@@ -352,7 +422,7 @@ function DayFitness() {
           </div>
         </section>
 
-        {/* Download & Carousel */}
+        {/* Download & App Preview */}
         <Reveal
           as="section"
           className="mx-auto mt-24 grid w-full max-w-6xl items-center gap-12 px-5 sm:px-8 md:grid-cols-2 md:gap-16"
@@ -382,9 +452,11 @@ function DayFitness() {
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-app-surface p-5 sm:p-8">
-            <Carousel />
-          </div>
+          <PhoneMockup
+            screen={SCREENS[0]}
+            // Above the fold, so the capture is not deferred.
+            priority
+          />
         </Reveal>
 
         {/* Project Card */}
@@ -392,23 +464,56 @@ function DayFitness() {
           <ProjectCard />
         </Reveal>
 
-        {/* Google Play Banner */}
+        {/* Crafted by Athletes & Professionals */}
         <Reveal
           as="section"
           className="mx-auto mt-20 w-full max-w-6xl px-5 pb-20 sm:px-8"
         >
-          {/* Desktop */}
-          <img
-            src={`${process.env.PUBLIC_URL}/googleplaybanner.png`}
-            alt="30 Day Fitness on Google Play"
-            className="hidden w-full rounded-2xl border border-white/10 md:block"
-          />
-          {/* Mobile */}
-          <img
-            src={`${process.env.PUBLIC_URL}/googleplaybannermobile.png`}
-            alt="30 Day Fitness on Google Play"
-            className="block w-full rounded-2xl border border-white/10 md:hidden"
-          />
+          <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
+            <div>
+              <span className="text-[11px] font-black uppercase tracking-[0.25em] text-accent">
+                Meet the team
+              </span>
+              {/* Left-aligned rather than SectionHeading, which centres itself
+                  and would fight the two-column split. Same type ramp. */}
+              <h2 className="mt-3 font-bebas text-4xl tracking-wider text-ink-primary sm:text-5xl">
+                Build carefully by real athletes and professionals
+              </h2>
+              <p className="mt-4 leading-relaxed text-ink-secondary">
+                Every program, exercise and demo in 30 Day Fitness goes through
+                the same thing our members do: real sets, real fatigue and real
+                form checks. Nothing goes live until it holds up under a barbell.
+              </p>
+
+              <ul className="mt-7 space-y-3">
+                {CRAFTED_POINTS.map((point) => (
+                  <li
+                    key={point}
+                    className="flex gap-3 text-sm leading-relaxed text-ink-secondary"
+                  >
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="relative">
+              {/* Gold spill echoing the accent used elsewhere, blurred so it
+                  reads as light coming off the frame. */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-6 rounded-[2.5rem] bg-accent/10 blur-3xl"
+              />
+              <img
+                src={`${process.env.PUBLIC_URL}/meetthedeveloper.jpg`}
+                alt="An athlete driving a barbell overhead in a gym, shoulder press."
+                loading="lazy"
+                decoding="async"
+                className="relative w-full rounded-3xl border border-white/10 object-cover shadow-[0_40px_80px_-35px_rgba(0,0,0,0.9)]"
+              />
+            </div>
+          </div>
         </Reveal>
       </main>
 
@@ -428,16 +533,11 @@ function DayFitness() {
             >
               Google Play
             </a>
-            <a
-              href={DEV_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition hover:text-accent"
-            >
-              rovenkodev
-            </a>
             <Link to="/privacy-policy" className="transition hover:text-accent">
               Privacy Policy
+            </Link>
+            <Link to="/terms-of-service" className="transition hover:text-accent">
+              Terms of Service
             </Link>
           </div>
         </div>

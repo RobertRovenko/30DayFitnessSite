@@ -2,11 +2,13 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Crown, Mail } from "lucide-react";
 
-import { Reveal, RevealGroup, RevealItem } from "./Reveal";
+import { Reveal } from "./Reveal";
+import ScrollProgress from "./ScrollProgress";
+import ScreenGallery from "./ScreenGallery";
 
 const PLAY_URL =
   "https://play.google.com/store/apps/details?id=com.rovenkodev.FitnessGuru";
-const DEV_URL = "https://www.robertrovenko.com/";
+const DEV_PLAY_URL = "https://play.google.com/store/apps/dev?id=6638725637924776409";
 
 const LAST_UPDATED = "25 September 2026";
 
@@ -122,7 +124,7 @@ const POLICY = [
     title: "Fitness and health disclaimer",
     paragraphs: [
       "The App provides general fitness information and workout plans. It is not medical advice, and it is not a substitute for a doctor, physiotherapist or qualified trainer. You are responsible for choosing exercises that suit your own health and fitness level, and for stopping if anything hurts. Talk to a medical professional before starting a new training programme — particularly if you are pregnant, recovering from an injury, or managing a health condition.",
-      "To the fullest extent permitted by law, RovenkoDev is not liable for injury, illness or damage arising from your use of the App, or from following any workout plan in it.",
+      "To the fullest extent permitted by law, RovenkoDev is not liable for injury, illness or damage arising from your use of the App, or from following any workout plan in it. The full terms covering this, and how to use the App safely, are set out in the Terms of Service.",
     ],
   },
   {
@@ -193,19 +195,11 @@ function PrivacyPolicy() {
   return (
     <div className="flex min-h-screen flex-col bg-app-bg font-inter text-ink-primary">
       {/* Header */}
-      <motion.header
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="sticky top-0 z-30 flex w-full items-center justify-between border-b border-white/10 bg-app-bg px-5 py-4 sm:px-8"
-      >
+      {/* Plain element, not a motion one - App fades the page in on navigation,
+          and a header that also slid in on mount read as a stutter. */}
+      <header className="sticky top-0 z-30 flex w-full items-center justify-between border-b border-white/10 bg-app-bg px-5 py-5 sm:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <img
-            src={`${process.env.PUBLIC_URL}/icon.png`}
-            alt=""
-            className="h-9 w-9 rounded-xl"
-          />
-          <span className="font-oswald text-xl font-semibold tracking-wide sm:text-2xl">
+          <span className="font-oswald text-2xl font-semibold tracking-wide sm:text-3xl">
             30 DAY FITNESS
           </span>
         </Link>
@@ -215,25 +209,46 @@ function PrivacyPolicy() {
             href={PLAY_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-app-bg transition hover:brightness-110"
+            // Same treatment as the home page's navbar button, so the badge
+            // looks identical wherever it appears.
+            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-accent/40 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-accent shadow-gold transition hover:border-accent hover:bg-accent/10 hover:shadow-gold-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:px-4 sm:py-2"
           >
-            <Crown size={11} />
+            <Crown
+              size={14}
+              className="shrink-0 transition-transform duration-300 group-hover:scale-110"
+            />
             <span className="hidden sm:inline">30 Day Fitness </span>Pro
           </a>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-tertiary transition hover:text-ink-primary"
+          <a
+            href={DEV_PLAY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.25em] text-ink-tertiary transition hover:text-ink-primary"
           >
-            <ArrowLeft size={13} />
-            <span className="hidden sm:inline">Back to home</span>
-          </Link>
+            <span className="text-accent">rovenko</span>dev
+          </a>
         </div>
-      </motion.header>
+
+        <ScrollProgress />
+      </header>
 
       <main className="flex-grow">
         {/* Title. Flat background - the gold wash from the old hero is gone. */}
         <section>
           <div className="mx-auto max-w-3xl px-5 pb-12 pt-16 text-center sm:px-8 md:pt-20">
+            {/* Lives here rather than in the header above: the header is a
+                one-line bar, and the link reads better set apart from the
+                wordmark. The flex wrapper keeps it hard left even though the
+                title block below it is centred. */}
+            <div className="mb-8 flex justify-start">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-ink-tertiary transition hover:text-ink-primary"
+              >
+                <ArrowLeft size={16} />
+                Back to home
+              </Link>
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -297,23 +312,7 @@ function PrivacyPolicy() {
           </motion.div>
         </div>
 
-        {/* Demonstration Images */}
-        <RevealGroup className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-6 px-5 pb-20 sm:px-8 md:flex-row">
-          {[
-            "30dayfitnessdemonstration1.png",
-            "30dayfitnessdemonstration2.png",
-            "30dayfitnessdemonstration3.png",
-          ].map((src) => (
-            <RevealItem key={src}>
-              <img
-                src={`${process.env.PUBLIC_URL}/images/${src}`}
-                alt="30 Day Fitness app screenshot"
-                className="w-auto rounded-2xl border border-white/10 bg-app-surface object-contain"
-                style={{ height: "clamp(240px, 42vw, 400px)" }}
-              />
-            </RevealItem>
-          ))}
-        </RevealGroup>
+        <ScreenGallery />
       </main>
 
       {/* Footer */}
@@ -332,14 +331,9 @@ function PrivacyPolicy() {
             >
               Google Play
             </a>
-            <a
-              href={DEV_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition hover:text-accent"
-            >
-              rovenkodev
-            </a>
+            <Link to="/terms-of-service" className="transition hover:text-accent">
+              Terms of Service
+            </Link>
             <Link to="/" className="transition hover:text-accent">
               Back to home
             </Link>
